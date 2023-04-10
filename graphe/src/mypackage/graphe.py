@@ -1,6 +1,4 @@
 from z3 import *
-from itertools import combinations
-
 
 
 class Automata:
@@ -49,7 +47,6 @@ def orTransition(transitions):
 
 
 def getAPrimeFollowers(q_, s, transitions):
-    # print('rentre')
     followers = []
     for transition in transitions:
         if transition[0] == "q" + str(q_):
@@ -63,7 +60,63 @@ def getAPrimeFollowers(q_, s, transitions):
     return followers
 
 
+def transitions_in_A(A_states,A_symbols):
+    # crée la liste de toutes les A_prime_transitions possible dans le graphe A
+    A_transitions = []
+    for q in range(len(A_states)):
+        A_transitions += [[]]
+        for s in range(len(A_symbols)):
+            A_transitions[q] += [[]]
+            for q2 in range(len(A_states)):
+                A_transitions[q][s] += [Bool("A_transition " +": ("+ str(q) +","+ str(s) +","+ str(q2)+")")]
+                # print("A_transition" + str(q) + str(s) + str(q2))
+    return A_transitions
+
+
+def vertex_G(A_states,A_prime_states):
+    # crée la liste les sommets du graphe G possibles
+    G_states = []
+    for q in range(len(A_states)):
+        G_states += [[]]
+        for q_ in range(len(A_prime_states)):
+            G_states[q] += [Bool("G : (" + str(q) +","+ str(q_)+")")]
+            # print("G" + str(q) + str(q_))
+    return G_states
+
+
+def path_G(A_states, A_prime_states):
+    # crée la liste de tout les path A et N possibles pour dans G
+    A_path = []
+    N_path = []
+    for q1 in range(len(A_states)):
+        A_path += [[]]
+        N_path += [[]]
+        for q1_ in range(len(A_prime_states)):
+            A_path[q1] += [[]]
+            N_path[q1] += [[]]
+            for q2 in range(len(A_states)):
+                A_path[q1][q1_] += [[]]
+                N_path[q1][q1_] += [[]]
+                for q2_ in range(len(A_prime_states)):
+                    A_path[q1][q1_][q2] += [Bool("A_path : (" + str(q1) +","+ str(q1_) +","+ str(q2) +","+ str(q2_)+")")]
+                    N_path[q1][q1_][q2] += [Bool("N_path : (" + str(q1) +","+ str(q1_) +","+ str(q2) +","+ str(q2_)+")")]
+                    # print("A_path" + str(q1) + str(q1_) + str(q2) + str(q2_))
+                    # print("N_path" + str(q1) + str(q1_) + str(q2) + str(q2_))
+    return (A_path, N_path)
+
+
+def final_states_of_A(A_states):
+    # crée la liste de tout les état finaux possibles pour A
+
+    A_final_states = []
+    for q1 in range(len(A_states)):
+        A_final_states += [Bool("A_final_states : " + str(q1))]
+        #print("A_final_states : " + str(q1))
+    return A_final_states
+
+
 def main():
+
     print("Input Automata : ")
     input = open("../../graphe2.txt", "r")
     A_prime_states = list(input.readline().split())
@@ -121,52 +174,12 @@ def main():
     #print("G_states : ")
     #print(*G_states)
 
-    # crée la liste de toutes les A_prime_transitions possible dans le graphe A
 
-    A_transition = []
-    for q in range(len(A_states)):
-        A_transition += [[]]
-        for s in range(len(A_symbols)):
-            A_transition[q] += [[]]
-            for q2 in range(len(A_states)):
-                A_transition[q][s] += [Bool("A_transition" + str(q) + str(s) + str(q2))]
-                # print("A_transition" + str(q) + str(s) + str(q2))
 
-    # crée la liste les sommets du graphe G possibles
-
-    G_states = []
-    for q in range(len(A_states)):
-        G_states += [[]]
-        for q_ in range(len(A_prime_states)):
-            G_states[q] += [Bool("G" + str(q) + str(q_))]
-            # print("G" + str(q) + str(q_))
-
-    # crée la liste de tout les path A et N possibles pour dans G
-
-    A_path = []
-    N_path = []
-    for q1 in range(len(A_states)):
-        A_path += [[]]
-        N_path += [[]]
-        for q1_ in range(len(A_prime_states)):
-            A_path[q1] += [[]]
-            N_path[q1] += [[]]
-            for q2 in range(len(A_states)):
-                A_path[q1][q1_] += [[]]
-                N_path[q1][q1_] += [[]]
-                for q2_ in range(len(A_prime_states)):
-                    A_path[q1][q1_][q2] += [Bool("A_path" + str(q1) + str(q1_) + str(q2) + str(q2_))]
-                    N_path[q1][q1_][q2] += [Bool("N_path" + str(q1) + str(q1_) + str(q2) + str(q2_))]
-                    # print("A_path" + str(q1) + str(q1_) + str(q2) + str(q2_))
-                    # print("N_path" + str(q1) + str(q1_) + str(q2) + str(q2_))
-
-    # crée la liste de tout les état finaux possibles pour A
-
-    A_final_states = []
-    for q1 in range(len(A_states)):
-        A_final_states += [Bool("A_final_states" + str(q1))]
-        print("A_final_states" + str(q1))
-
+    A_transitions = transitions_in_A(A_states,A_symbols)
+    G_states = vertex_G(A_states,A_prime_states)
+    A_path, N_path = path_G(A_states,A_prime_states)
+    A_final_states = final_states_of_A(A_states)
     sol = Solver()
 
 
@@ -176,8 +189,8 @@ def main():
         for s in range(len(A_symbols)):
             transit = []
             for q2 in range(len(A_states)):
-                transit += [A_transition[q1][s][q2]]
-            #print(transit)
+                transit += [A_transitions[q1][s][q2]]
+            print(transit)
             sol.add(orTransition(transit))
 
     # clause 2
@@ -189,7 +202,7 @@ def main():
                 for s in range(len(A_prime_symbols)):
                     followers = getAPrimeFollowers(q_, s, A_prime_transitions)
                     for follower in followers:  # pas opti
-                        sol.add(Implies(And(G_states[q1][q_]), A_transition[q1][s][q2], G_states[q2][follower]))
+                        sol.add(Implies(And(G_states[q1][q_]), A_transitions[q1][s][q2], G_states[q2][follower]))
 
 
 
@@ -205,7 +218,7 @@ def main():
                             for follower in followers:  # pas opti
                                 if follower not in A_prime_final_states:
                                     if q1 != q3 or q1_ != follower:
-                                        sol.add(Implies(And(N_path[q1][q1_][q2][q2_], A_transition[q2][s][q3]),
+                                        sol.add(Implies(And(N_path[q1][q1_][q2][q2_], A_transitions[q2][s][q3]),
                                                    N_path[q1][q1_][q3][follower]))
 
     # clause 4
@@ -218,7 +231,7 @@ def main():
                         followers = getAPrimeFollowers(q2_, s, A_prime_transitions)
                         for follower in followers:  # pas opti
                             if q1_ not in A_prime_final_states and q1_ == follower:
-                                sol.add(Implies(And(N_path[q1][q1_][q2][q2_], A_transition[q2][s][q1]), Not(A_final_states[q1])))
+                                sol.add(Implies(And(N_path[q1][q1_][q2][q2_], A_transitions[q2][s][q1]), Not(A_final_states[q1])))
 
     # clause 5
 
@@ -232,7 +245,7 @@ def main():
                             for follower in followers:  # pas opti
                                 if q1_ in A_prime_final_states:
                                     if q1 != q3 or q1_ != follower:
-                                        sol.add(Implies(And(A_path[q1][q1_][q2][q2_], A_transition[q2][s][q3], Not(A_final_states[q3])),
+                                        sol.add(Implies(And(A_path[q1][q1_][q2][q2_], A_transitions[q2][s][q3], Not(A_final_states[q3])),
                                                    A_path[q1][q1_][q3][follower]))
 
     # clause 6
@@ -246,7 +259,7 @@ def main():
                         for follower in followers:  # pas opti
                             if q1_ in A_prime_final_states:
                                 if q1_ == follower:
-                                    sol.add(Implies(And(A_path[q1][q1_][q2][q2_], A_transition[q2][s][q1]), A_final_states[q1]))
+                                    sol.add(Implies(And(A_path[q1][q1_][q2][q2_], A_transitions[q2][s][q1]), A_final_states[q1]))
 
     # clause 7
     sol.add(G_states[0][0])
@@ -262,7 +275,6 @@ def main():
     if str(sol.check()) == 'sat':
         print("")
         print("sat")
-
         m = sol.model()
         print(m)
 
