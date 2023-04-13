@@ -304,6 +304,18 @@ def main():
             sol.add(Implies(G_states[q][q_], A_path[q][q_][q][q_]))
             sol.add(Implies(G_states[q][q_], N_path[q][q_][q][q_]))
 
+    #on veut pas un état final dans un mais pas dans l'autre
+    for q1 in range(len(A_states)):
+        for q2 in range(len(A_states)):
+            for q1_ in range(len(A_prime_states)):
+                for q2_ in range(len(A_prime_states)):
+                    sol.add(Not(And(A_path[q1][q1_][q2][q2_], Not(N_path[q1][q1_][q2][q2_]))))
+                    sol.add(Not(And(N_path[q1][q1_][q2][q2_], Not(A_path[q1][q1_][q2][q2_]))))
+                    #print(Not(And(A_path[q1][q1_][q2][q2_], Not(N_path[q1][q1_][q2][q2_]))))
+
+    #pour avoir un autre modèle (correct pour graphe2)
+    #sol.add(A_transitions[0][1][1] == True)
+
     if str(sol.check()) == 'sat':
         # print(sol.sexpr())
         print("")
