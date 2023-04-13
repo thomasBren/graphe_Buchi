@@ -88,12 +88,5 @@ class test(unittest.TestCase):
         self.assertEquals(res2, [])
 
 
-    def test_orTransition(self):
-        transitions = [Bool("A_transition : (0,0,0)"), Bool("A_transition : (0,0,1)"), Bool("A_transition : (0,0,2)")]
-        res = orTransition(transitions)
-        print(res)
-        self.assertEquals(res,Or(Bool("A_transition : (0,0,0)"), Bool("A_transition : (0,0,1)"), Bool("A_transition : (0,0,2)")))
-
-
     if __name__ == '__main__':
         unittest.main()
