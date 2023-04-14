@@ -1,6 +1,4 @@
 from z3 import *
-from itertools import combinations
-
 
 class Automata:
     def __init__(self, states, symbols, initial_state, final_states, transitions):
@@ -201,7 +199,6 @@ def main():
     A_final_states = final_states_of_A(A_states)
     sol = Solver()
 
-
     # clause 1
 
     for q1 in range(len(A_states)):
@@ -278,7 +275,7 @@ def main():
                             for follower in followers:  # pas opti
                                 if A_prime_states[q1_] in A_prime_final_states:
                                     if q1 != q3 or q1_ != follower:
-                                        #print(Implies(And(A_path[q1][q1_][q2][q2_], A_transitions[q2][s][q3], Not(A_final_states[q3])), A_path[q1][q1_][q3][follower]))
+                                        # print(Implies(And(A_path[q1][q1_][q2][q2_], A_transitions[q2][s][q3], Not(A_final_states[q3])), A_path[q1][q1_][q3][follower]))
                                         sol.add(Implies(And(A_path[q1][q1_][q2][q2_], A_transitions[q2][s][q3],
                                                             Not(A_final_states[q3])),
                                                         A_path[q1][q1_][q3][follower]))
@@ -304,24 +301,45 @@ def main():
             sol.add(Implies(G_states[q][q_], A_path[q][q_][q][q_]))
             sol.add(Implies(G_states[q][q_], N_path[q][q_][q][q_]))
 
-    #on veut pas un état final dans un mais pas dans l'autre
+    # on veut pas un état final dans un mais pas dans l'autre
     for q1 in range(len(A_states)):
         for q2 in range(len(A_states)):
             for q1_ in range(len(A_prime_states)):
                 for q2_ in range(len(A_prime_states)):
                     sol.add(Not(And(A_path[q1][q1_][q2][q2_], Not(N_path[q1][q1_][q2][q2_]))))
                     sol.add(Not(And(N_path[q1][q1_][q2][q2_], Not(A_path[q1][q1_][q2][q2_]))))
-                    #print(Not(And(A_path[q1][q1_][q2][q2_], Not(N_path[q1][q1_][q2][q2_]))))
+                    # print(Not(And(A_path[q1][q1_][q2][q2_], Not(N_path[q1][q1_][q2][q2_]))))
 
-    #pour avoir un autre modèle (correct pour graphe2)
-    #sol.add(A_transitions[0][1][1] == True)
-
-    if str(sol.check()) == 'sat':
+    # pour avoir un autre modèle (correct pour graphe2)
+    # sol.add(A_transitions[0][1][1] == True)
+    nbr = 0
+    while sol.check() == sat:
         # print(sol.sexpr())
-        print("")
-        print("sat")
+
+        #print(nbr)
+        nbr = nbr + 1
+
         model = sol.model()
-        # print(model)
+        print("")
+        print("####################################")
+        print("")
+        print("model "+str(nbr)+" :")
+        print("")
+        #print(model)
+        # affichage_transition(model)
+        block = []
+        for d in model:
+            # Create a new constraint to block this model
+            # print("i "+str(d() != model[d]))
+            #print(repr((d() != model[d])).split(":")[0])
+            if repr(d() != model[d]).split(":")[0] == "A_transition " or \
+                    repr(d() != model[d]).split(":")[0] == "A_final_states ":
+                c = d() != model[d]
+                #print(c)
+                block.append(c)
+        #print(block)
+        sol.add(Or(block))
+
         for element in model:
             if is_true(model[element]):
                 # print(element, "is true")
@@ -330,9 +348,9 @@ def main():
                 # print(element, "is false")
                 pass
 
-        affichage_path(model, A_states, A_prime_states)
+        #affichage_path(model, A_states, A_prime_states)
         affichage_transition(model)
-        affichage_G_states(model)
+        #affichage_G_states(model)
         affichage_final_states_a(model)
 
         for i in model:
@@ -341,9 +359,12 @@ def main():
                 # print(is_true(model[i]))
                 pass
 
+
     else:
-        print("unsatifiable")
+        print("")
+        print("end")
 
 
 if __name__ == '__main__':
     main()
+
