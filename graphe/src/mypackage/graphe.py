@@ -313,6 +313,7 @@ def main():
     # pour avoir un autre modèle (correct pour graphe2)
     # sol.add(A_transitions[0][1][1] == True)
     nbr = 0
+    automata = []
     while sol.check() == sat:
         # print(sol.sexpr())
 
@@ -342,16 +343,19 @@ def main():
 
         for element in model:
             if is_true(model[element]):
-                # print(element, "is true")
-                pass
+                if(repr(element).split(":")[0]=="A_transition "):
+                    print(repr(element).split(":")[1])
+                if (repr(element).split(":")[0] == "A_final_states "):
+                    print(repr(element).split(":")[1])
+                    pass
             if is_false(model[element]):
                 # print(element, "is false")
                 pass
 
         #affichage_path(model, A_states, A_prime_states)
-        affichage_transition(model)
+        #affichage_transition(model)
         #affichage_G_states(model)
-        affichage_final_states_a(model)
+        #affichage_final_states_a(model)
 
         for i in model:
             if repr(i).split(":")[0] == "G " and repr(i).split(":")[1] == " (0,0)":
