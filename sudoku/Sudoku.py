@@ -57,32 +57,27 @@ def main():
     if str(s.check()) == 'sat':
         print("sat")
         m = s.model()
-        lines = []
-        for i in range(9):
-            lines += [[]]
-            for j in range(9):
-                digit = 0
-                for x in range(9):
-                    if m.evaluate(lits[i][j][x]):
-                        digit = x + 1
-                lines[i] += [digit]
-        affichage(lines)
+        affichage(m,lits)
 
 
-def affichage(lines):
-    i = 0
-    j = 0
-    for line in lines:
-        j += 1
-        p = ""
-        for x in line:
-            i += 1
-            p += (" " + (str(x)))
-            if i % 3 == 0:
-                p += (" |")
-        print(p)
-        if j % 3 == 0:
+def affichage(m,lits):
+    lines = []
+    for i in range(9):
+        lines += [[]]
+        line = ""
+        for j in range(9):
+            digit = 0
+            for x in range(9):
+                if m.evaluate(lits[i][j][x]):
+                    digit = x + 1
+                    line+=str(x+1)+" "
+                    if((j+1)%3==0):
+                        line += "|" + " "
+        if ((i) % 3 == 0):
             print("-----------------------")
+        print(line)
+    print("-----------------------")
+
 
 
 if __name__ == '__main__':
