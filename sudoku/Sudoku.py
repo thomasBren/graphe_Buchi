@@ -42,12 +42,10 @@ def main():
                 for a in range(3):
                     for b in range(3):
                         or_list2 += [lits[3*i+a][3*j+b][v]]
-                print("or_list2")
-                print(or_list2)
                 s.add(Or(or_list2))
 
     if str(s.check()) == 'sat':
-        print("sat")
+
         m = s.model()
         affichage(m,lits)
 

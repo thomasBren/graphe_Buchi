@@ -1,0 +1,57 @@
+    nbr = 0
+    automata = []
+
+    else:
+
+        while sol.check() == sat:
+            # print(sol.sexpr()
+            # print(nbr)
+            nbr = nbr + 1
+
+            model = sol.model()
+            print("")
+            print("####################################")
+            print("")
+            print("model " + str(nbr) + " :")
+            print("")
+            # print(model)
+            # affichage_transition(model)
+            block = []
+            for d in model:
+                # Create a new constraint to block this model
+                # print("i "+str(d() != model[d]))
+                # print(repr((d() != model[d])).split(":")[0])
+                if repr(d() != model[d]).split(":")[0] == "A_transition " or \
+                        repr(d() != model[d]).split(":")[0] == "A_final_states ":
+                    c = d() != model[d]
+                    # print(c)
+                    block.append(c)
+            # print(block)
+            sol.add(Or(block))
+
+            for element in model:
+                if is_true(model[element]):
+                    if repr(element).split(":")[0] == "A_transition ":
+                        print(repr(element).split(":")[1])
+                    if repr(element).split(":")[0] == "A_final_states ":
+                        print(repr(element).split(":")[1])
+                        pass
+                if is_false(model[element]):
+                    # print(element, "is false")
+                    pass
+
+            # affichage_path(model, A_states, A_prime_states)
+            # affichage_transition(model)
+            # affichage_G_states(model)
+            # affichage_final_states_a(model)
+
+            for i in model:
+                if repr(i).split(":")[0] == "G " and repr(i).split(":")[1] == " (0,0)":
+                    # print(i)
+                    # print(is_true(model[i]))
+                    pass
+
+
+        else:
+            print("")
+            print("end")

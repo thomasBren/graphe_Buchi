@@ -1,5 +1,6 @@
 from z3 import *
 
+
 class Automata:
     def __init__(self, states, symbols, initial_state, final_states, transitions):
         self.states = states
@@ -91,7 +92,7 @@ def path_G(A_states, A_prime_states):
                         Bool("N_path : (" + str(q1) + "," + str(q1_) + "," + str(q2) + "," + str(q2_) + ")")]
                     # print("A_path" + str(q1) + str(q1_) + str(q2) + str(q2_))
                     # print("N_path" + str(q1) + str(q1_) + str(q2) + str(q2_))
-    return (A_path, N_path)
+    return A_path, N_path
 
 
 def affichage_path(model, A_states, A_prime_states):
@@ -147,55 +148,25 @@ def final_states_of_A(A_states):
     return A_final_states
 
 
-def main():
-    print("Input Automata : ")
-    input = open("../../graphe2.txt", "r")
-    A_prime_states = list(input.readline().split())
-    print("A_prime_states : ")
-    print(*A_prime_states)
-    A_prime_symbols = list(input.readline().split())
-    print("A_prime_symbols : ")
-    print(*A_prime_symbols)
-    prime_initial_state = list(input.readline().split())
-    print("prime_initial_state : ")
-    print(*prime_initial_state)
-    A_prime_final_states = list(input.readline().split())
-    print("A_prime_final_states : ")
-    print(*A_prime_final_states)
-    A_prime_transitions = []
-    for line in input:
-        line = line.strip()
-        if line:
-            prime_transition = tuple(line.split())
-            A_prime_transitions.append(prime_transition)
-    print("A_prime_transitions : ")
-    print(*A_prime_transitions)
-
-    try:
-        A_prime = create_automata(A_prime_states, A_prime_symbols, prime_initial_state, A_prime_final_states,
-                                  A_prime_transitions)
-    except AutomataError as ex:
-        print(ex)
-        return 0
-
-    print("")
-    print("New automata : ")
+def minimize(A_prime):
+    # print("")
+    # print("New automata : ")
 
     A_states = []
-    for i in range(len(A_prime_states) - 1):
+    for i in range(len(A_prime.states) - 1):
         A_states.append("q" + str(i))
-    print("A_states : ")
-    print(*A_states)
-    A_symbols = A_prime_symbols
-    print("A_symbols : ")
-    print(*A_symbols)
+    # print("A_states : ")
+    # print(*A_states)
+    A_symbols = A_prime.symbols
+    # print("A_symbols : ")
+    # print(*A_symbols)
     A_initial_state = ["q0"]
-    print("A_initial_state : ")
-    print(*A_initial_state)
+    # print("A_initial_state : ")
+    # print(*A_initial_state)
 
     A_transitions = transitions_in_A(A_states, A_symbols)
-    G_states = vertex_G(A_states, A_prime_states)
-    A_path, N_path = path_G(A_states, A_prime_states)
+    G_states = vertex_G(A_states, A_prime.states)
+    A_path, N_path = path_G(A_states, A_prime.states)
     A_final_states = final_states_of_A(A_states)
     sol = Solver()
 
@@ -221,11 +192,11 @@ def main():
     # clause 2
 
     for q1 in range(len(A_states)):
-        for q_ in range(len(A_prime_states)):
+        for q_ in range(len(A_prime.states)):
             # print(new_G_states[q1][q_])
             for q2 in range(len(A_states)):
-                for s in range(len(A_prime_symbols)):
-                    followers = getAPrimeFollowers(q_, s, A_prime_transitions)
+                for s in range(len(A_prime.symbols)):
+                    followers = getAPrimeFollowers(q_, s, A_prime.transitions)
                     for follower in followers:  # pas opti
                         # if q1==0 and q_==0:
                         # print(str(q1) +" "+ str(q_))
@@ -240,12 +211,12 @@ def main():
     for q1 in range(len(A_states)):
         for q2 in range(len(A_states)):
             for q3 in range(len(A_states)):
-                for q1_ in range(len(A_prime_states)):
-                    for q2_ in range(len(A_prime_states)):
-                        for s in range(len(A_prime_symbols)):
-                            followers = getAPrimeFollowers(q2_, s, A_prime_transitions)
+                for q1_ in range(len(A_prime.states)):
+                    for q2_ in range(len(A_prime.states)):
+                        for s in range(len(A_prime.symbols)):
+                            followers = getAPrimeFollowers(q2_, s, A_prime.transitions)
                             for follower in followers:  # pas opti
-                                if A_prime_states[follower] not in A_prime_final_states:
+                                if A_prime.states[follower] not in A_prime.final_states:
                                     if q1 != q3 or q1_ != follower:
                                         sol.add(Implies(And(N_path[q1][q1_][q2][q2_], A_transitions[q2][s][q3]),
                                                         N_path[q1][q1_][q3][follower]))
@@ -254,12 +225,12 @@ def main():
 
     for q1 in range(len(A_states)):
         for q2 in range(len(A_states)):
-            for q1_ in range(len(A_prime_states)):
-                for q2_ in range(len(A_prime_states)):
-                    for s in range(len(A_prime_symbols)):
-                        followers = getAPrimeFollowers(q2_, s, A_prime_transitions)
+            for q1_ in range(len(A_prime.states)):
+                for q2_ in range(len(A_prime.states)):
+                    for s in range(len(A_prime.symbols)):
+                        followers = getAPrimeFollowers(q2_, s, A_prime.transitions)
                         for follower in followers:  # pas opti
-                            if A_prime_states[q1_] not in A_prime_final_states and q1_ == follower:
+                            if A_prime.states[q1_] not in A_prime.final_states and q1_ == follower:
                                 sol.add(Implies(And(N_path[q1][q1_][q2][q2_], A_transitions[q2][s][q1]),
                                                 Not(A_final_states[q1])))
 
@@ -268,12 +239,12 @@ def main():
     for q1 in range(len(A_states)):
         for q2 in range(len(A_states)):
             for q3 in range(len(A_states)):
-                for q1_ in range(len(A_prime_states)):
-                    for q2_ in range(len(A_prime_states)):
-                        for s in range(len(A_prime_symbols)):
-                            followers = getAPrimeFollowers(q2_, s, A_prime_transitions)
+                for q1_ in range(len(A_prime.states)):
+                    for q2_ in range(len(A_prime.states)):
+                        for s in range(len(A_prime.symbols)):
+                            followers = getAPrimeFollowers(q2_, s, A_prime.transitions)
                             for follower in followers:  # pas opti
-                                if A_prime_states[q1_] in A_prime_final_states:
+                                if A_prime.states[q1_] in A_prime.final_states:
                                     if q1 != q3 or q1_ != follower:
                                         # print(Implies(And(A_path[q1][q1_][q2][q2_], A_transitions[q2][s][q3], Not(A_final_states[q3])), A_path[q1][q1_][q3][follower]))
                                         sol.add(Implies(And(A_path[q1][q1_][q2][q2_], A_transitions[q2][s][q3],
@@ -284,12 +255,12 @@ def main():
 
     for q1 in range(len(A_states)):
         for q2 in range(len(A_states)):
-            for q1_ in range(len(A_prime_states)):
-                for q2_ in range(len(A_prime_states)):
-                    for s in range(len(A_prime_symbols)):
-                        followers = getAPrimeFollowers(q2_, s, A_prime_transitions)
+            for q1_ in range(len(A_prime.states)):
+                for q2_ in range(len(A_prime.states)):
+                    for s in range(len(A_prime.symbols)):
+                        followers = getAPrimeFollowers(q2_, s, A_prime.transitions)
                         for follower in followers:  # pas opti
-                            if A_prime_states[q1_] in A_prime_final_states:
+                            if A_prime.states[q1_] in A_prime.final_states:
                                 if q1_ == follower:
                                     sol.add(Implies(And(A_path[q1][q1_][q2][q2_], A_transitions[q2][s][q1]),
                                                     A_final_states[q1]))
@@ -297,78 +268,111 @@ def main():
     # clause 7
     sol.add(G_states[0][0] == True)
     for q in range(len(A_states)):
-        for q_ in range(len(A_prime_states)):
+        for q_ in range(len(A_prime.states)):
             sol.add(Implies(G_states[q][q_], A_path[q][q_][q][q_]))
             sol.add(Implies(G_states[q][q_], N_path[q][q_][q][q_]))
 
     # on veut pas un état final dans un mais pas dans l'autre
     for q1 in range(len(A_states)):
         for q2 in range(len(A_states)):
-            for q1_ in range(len(A_prime_states)):
-                for q2_ in range(len(A_prime_states)):
+            for q1_ in range(len(A_prime.states)):
+                for q2_ in range(len(A_prime.states)):
                     sol.add(Not(And(A_path[q1][q1_][q2][q2_], Not(N_path[q1][q1_][q2][q2_]))))
                     sol.add(Not(And(N_path[q1][q1_][q2][q2_], Not(A_path[q1][q1_][q2][q2_]))))
                     # print(Not(And(A_path[q1][q1_][q2][q2_], Not(N_path[q1][q1_][q2][q2_]))))
 
     # pour avoir un autre modèle (correct pour graphe2)
     # sol.add(A_transitions[0][1][1] == True)
-    nbr = 0
-    automata = []
-    while sol.check() == sat:
-        # print(sol.sexpr())
 
-        #print(nbr)
-        nbr = nbr + 1
-
+    if sol.check() == sat:
         model = sol.model()
-        print("")
-        print("####################################")
-        print("")
-        print("model "+str(nbr)+" :")
-        print("")
-        #print(model)
+
+        # affichage_path(model, A_states, A_prime_states)
         # affichage_transition(model)
-        block = []
-        for d in model:
-            # Create a new constraint to block this model
-            # print("i "+str(d() != model[d]))
-            #print(repr((d() != model[d])).split(":")[0])
-            if repr(d() != model[d]).split(":")[0] == "A_transition " or \
-                    repr(d() != model[d]).split(":")[0] == "A_final_states ":
-                c = d() != model[d]
-                #print(c)
-                block.append(c)
-        #print(block)
-        sol.add(Or(block))
+        # affichage_G_states(model)
+        # affichage_final_states_a(model)
 
-        for element in model:
-            if is_true(model[element]):
-                if(repr(element).split(":")[0]=="A_transition "):
-                    print(repr(element).split(":")[1])
-                if (repr(element).split(":")[0] == "A_final_states "):
-                    print(repr(element).split(":")[1])
-                    pass
-            if is_false(model[element]):
-                # print(element, "is false")
-                pass
-
-        #affichage_path(model, A_states, A_prime_states)
-        #affichage_transition(model)
-        #affichage_G_states(model)
-        #affichage_final_states_a(model)
-
+        A_final_states = []
+        A_transitions = []
         for i in model:
-            if repr(i).split(":")[0] == "G " and repr(i).split(":")[1] == " (0,0)":
-                # print(i)
-                # print(is_true(model[i]))
-                pass
+            if is_true(model[i]):
+                type = repr(i).split(":")[0]
+                val = repr(i).split(":")[1]
+                if type == "A_final_states ":
+                    A_final_state = (A_states[int(val[1])])
+                    A_final_states.append(A_final_state)
+                if type == "A_transition ":
+                    A_transition = (A_states[int(val[2])], val[4], A_states[int(val[6])])
+                    A_transitions.append(A_transition)
+
+        new_automata = create_automata(A_states, A_symbols, A_initial_state, A_final_states, A_transitions)
+        return new_automata
+
+    return None
 
 
-    else:
-        print("")
-        print("end")
+def main():
+    one_model = True
+    print("Input Automata : ")
+    input = open("../input_graphe/graphe2.txt", "r")
+    A_prime_states = list(input.readline().split())
+    print("A_prime_states : ")
+    print(*A_prime_states)
+    A_prime_symbols = list(input.readline().split())
+    print("A_prime_symbols : ")
+    print(*A_prime_symbols)
+    A_prime_initial_state = list(input.readline().split())
+    print("A_prime_initial_state : ")
+    print(*A_prime_initial_state)
+    A_prime_final_states = list(input.readline().split())
+    print("A_prime_final_states : ")
+    print(*A_prime_final_states)
+    A_prime_transitions = []
+    for line in input:
+        line = line.strip()
+        if line:
+            prime_transition = tuple(line.split())
+            A_prime_transitions.append(prime_transition)
+    print("A_prime_transitions : ")
+    print(*A_prime_transitions)
+
+    try:
+        A_prime = create_automata(A_prime_states, A_prime_symbols, A_prime_initial_state, A_prime_final_states,
+                                  A_prime_transitions)
+    except AutomataError as ex:
+        print(ex)
+        return 0
+
+    minimizing = True
+    loop_number = 0
+    while minimizing:
+        loop_number += 1
+        if len(A_prime.states) < 2:
+            minimizing = False
+            loop_number -= 1
+        else:
+            automata = minimize(A_prime)
+            if automata is None:
+                minimizing = False
+            else:
+                A_prime = automata
+    print("")
+    print("")
+    print("minimization number = " + str(loop_number))
+    print("")
+    print("output Automata : ")
+    print("A_states : ")
+    print(*A_prime.states)
+    print("A_symbols : ")
+    print(*A_prime.symbols)
+    print("A_initial_state : ")
+    print(*A_prime.initial_state)
+    print("A_final_states : ")
+    print(*A_prime.final_states)
+    print("A_transitions : ")
+    print(A_prime.transitions)
+
 
 
 if __name__ == '__main__':
     main()
-
