@@ -1,14 +1,5 @@
 from z3 import *
-from itertools import combinations
 
-
-def one_value(litterals):
-    constraint = []
-    for pair in combinations(litterals, 2):
-        a, b = pair[0], pair[1]
-        constraint += [Or(Not(a), Not(b))]
-    constraint += [Or(litterals)]
-    return And(constraint)
 
 
 def main():
@@ -21,38 +12,39 @@ def main():
                 lits[i][j] += [Bool("x" + str(i) + str(j) + str(digit))]
     s = Solver()
 
-
-    # une fois par colonne
-    for i in range(9):
-        for value in range(9):
-            col = []
-            for j in range(9):
-                col += [lits[j][i][value]]
-            s.add(one_value(col))
-
-    # une fois par ligne
-    for i in range(9):
-        for value in range(9):
-            row = []
-            for j in range(9):
-                row += [lits[i][j][value]]
-
-            s.add(one_value(row))
-
-    # une valeur par case
     for i in range(9):
         for j in range(9):
-            s.add(one_value(lits[i][j]))
+            or_list = []
+            for v in range(9):
+                or_list += [lits[i][j][v]]
+            s.add(Or(or_list))
 
-    # une fois par case 3x3
-    for i in range(3):
-        for j in range(3):
-            for value in range(9):
-                case = []
+    for i in range(9):
+        for j in range(9):
+            for v in range(9):
+                for v_ in range(9):
+                    if v != v_:
+                        s.add(Implies(lits[i][j][v], Not(lits[i][j][v_])))
+
+    for i in range(9):
+        for j in range(9):
+            for v in range(9):
+                for k in range(9):
+                    if k != i:
+                        s.add(Implies(lits[i][j][v], Not(lits[k][j][v])))
+                    if k != j:
+                        s.add(Implies(lits[i][j][v], Not(lits[i][k][v])))
+
+    for v in range(9):
+        for i in range(3):
+            for j in range(3):
+                or_list2 = []
                 for a in range(3):
                     for b in range(3):
-                        case += [lits[3 * i + a][3 * j + b][value]]
-                s.add(one_value(case))
+                        or_list2 += [lits[3*i+a][3*j+b][v]]
+                print("or_list2")
+                print(or_list2)
+                s.add(Or(or_list2))
 
     if str(s.check()) == 'sat':
         print("sat")
@@ -66,10 +58,8 @@ def affichage(m,lits):
         lines += [[]]
         line = ""
         for j in range(9):
-            digit = 0
             for x in range(9):
                 if m.evaluate(lits[i][j][x]):
-                    digit = x + 1
                     line+=str(x+1)+" "
                     if((j+1)%3==0):
                         line += "|" + " "
