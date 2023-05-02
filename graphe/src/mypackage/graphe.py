@@ -314,7 +314,7 @@ def minimize(A_prime):
 def main():
     one_model = True
     print("Input Automata : ")
-    input = open("../input_graphe/graphe2.txt", "r")
+    input = open("../input_graphe/LTL3.txt", "r")
     A_prime_states = list(input.readline().split())
     print("A_prime_states : ")
     print(*A_prime_states)
@@ -354,6 +354,7 @@ def main():
             automata = minimize(A_prime)
             if automata is None:
                 minimizing = False
+                loop_number -= 1
             else:
                 A_prime = automata
     print("")
