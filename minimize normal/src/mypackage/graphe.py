@@ -63,7 +63,8 @@ def get_distinguishable(A_prime, list_pair):
     add = True
 
     for element in list_pair:
-        if element[0] in A_prime.final_states or element[1] in A_prime.final_states:
+        if (element[0] in A_prime.final_states and element[1] not in A_prime.final_states) or (
+                element[1] in A_prime.final_states and element[0] not in A_prime.final_states):
             distinguishable.append(element)
 
     while add:
@@ -82,6 +83,33 @@ def get_distinguishable(A_prime, list_pair):
     return distinguishable, not_distinguishable
 
 
+def create_blocks(A_prime, not_distinguishable):
+    list_blocks = []
+    for element in not_distinguishable:
+        placed = False
+        for block in list_blocks:
+            if element[0] in block or element[1] in block:
+                placed = True
+                if element[0] not in block:
+                    block.append(element[0])
+                if element[1] not in block:
+                    block.append(element[1])
+        if not placed:
+            list_blocks.append(element)
+
+    for element in A_prime.states:
+        placed = False
+        for block in list_blocks:
+            if element in block:
+                placed = True
+        if not placed:
+            list_blocks.append(element)
+
+    return list_blocks
+
+
+
+
 def minimize(A_prime):
     list_pair = get_pair(A_prime)
     print("pair : ")
@@ -93,6 +121,11 @@ def minimize(A_prime):
     print(distinguishable)
     print("not_distinguishable :")
     print(not_distinguishable)
+
+    list_blocks = create_blocks(A_prime, not_distinguishable)
+    print("list_blocks :")
+    print(list_blocks)
+
     return None
 
 
