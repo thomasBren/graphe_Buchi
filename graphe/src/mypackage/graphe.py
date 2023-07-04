@@ -312,66 +312,71 @@ def minimize(A_prime):
 
 
 def main():
-    one_model = True
-    print("Input Automata : ")
-    input = open("../input_graphe/LTL3.txt", "r")
-    A_prime_states = list(input.readline().split())
-    print("A_prime_states : ")
-    print(*A_prime_states)
-    A_prime_symbols = list(input.readline().split())
-    print("A_prime_symbols : ")
-    print(*A_prime_symbols)
-    A_prime_initial_state = list(input.readline().split())
-    print("A_prime_initial_state : ")
-    print(*A_prime_initial_state)
-    A_prime_final_states = list(input.readline().split())
-    print("A_prime_final_states : ")
-    print(*A_prime_final_states)
-    A_prime_transitions = []
-    for line in input:
-        line = line.strip()
-        if line:
-            prime_transition = tuple(line.split())
-            A_prime_transitions.append(prime_transition)
-    print("A_prime_transitions : ")
-    print(*A_prime_transitions)
+    list_file = {"LTL4.txt", "LTL3.txt", "LTL2.txt", "LTL1.txt", "file_graph.txt"}
+    for i in list_file:
+        print("Input Automata from file " + i)
+        print("")
+        input = open("../input_graphe/"+i, "r")
+        A_prime_states = list(input.readline().split())
+        print("A_prime_states : ")
+        print(*A_prime_states)
+        A_prime_symbols = list(input.readline().split())
+        print("A_prime_symbols : ")
+        print(*A_prime_symbols)
+        A_prime_initial_state = list(input.readline().split())
+        print("A_prime_initial_state : ")
+        print(*A_prime_initial_state)
+        A_prime_final_states = list(input.readline().split())
+        print("A_prime_final_states : ")
+        print(*A_prime_final_states)
+        A_prime_transitions = []
+        for line in input:
+            line = line.strip()
+            if line:
+                prime_transition = tuple(line.split())
+                A_prime_transitions.append(prime_transition)
+        print("A_prime_transitions : ")
+        print(*A_prime_transitions)
 
-    try:
-        A_prime = create_automata(A_prime_states, A_prime_symbols, A_prime_initial_state, A_prime_final_states,
+        try:
+            A_prime = create_automata(A_prime_states, A_prime_symbols, A_prime_initial_state, A_prime_final_states,
                                   A_prime_transitions)
-    except AutomataError as ex:
-        print(ex)
-        return 0
+        except AutomataError as ex:
+            print(ex)
+            return 0
 
-    minimizing = True
-    loop_number = 0
-    while minimizing:
-        loop_number += 1
-        if len(A_prime.states) < 2:
-            minimizing = False
-            loop_number -= 1
-        else:
-            automata = minimize(A_prime)
-            if automata is None:
+        minimizing = True
+        loop_number = 0
+        while minimizing:
+            loop_number += 1
+            if len(A_prime.states) < 2:
                 minimizing = False
                 loop_number -= 1
             else:
-                A_prime = automata
-    print("")
-    print("")
-    print("minimization number = " + str(loop_number))
-    print("")
-    print("output Automata : ")
-    print("A_states : ")
-    print(*A_prime.states)
-    print("A_symbols : ")
-    print(*A_prime.symbols)
-    print("A_initial_state : ")
-    print(*A_prime.initial_state)
-    print("A_final_states : ")
-    print(*A_prime.final_states)
-    print("A_transitions : ")
-    print(A_prime.transitions)
+                automata = minimize(A_prime)
+                if automata is None:
+                    minimizing = False
+                    loop_number -= 1
+                else:
+                    A_prime = automata
+        print("")
+        print("")
+        print("minimization number = " + str(loop_number))
+        print("")
+        print("output Automata : ")
+        print("A_states : ")
+        print(*A_prime.states)
+        print("A_symbols : ")
+        print(*A_prime.symbols)
+        print("A_initial_state : ")
+        print(*A_prime.initial_state)
+        print("A_final_states : ")
+        print(*A_prime.final_states)
+        print("A_transitions : ")
+        print(A_prime.transitions)
+        print("")
+        print("")
+        print("==================================================")
 
 
 
