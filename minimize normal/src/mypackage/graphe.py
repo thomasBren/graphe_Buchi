@@ -105,8 +105,26 @@ def create_blocks(A_prime, not_distinguishable):
         if not placed:
             list_blocks.append(element)
 
-    # TO DO le cas ou final et pas final
+    # le cas où état final et pas final dans le même block
 
+    for element in list_blocks:
+        new_block = []
+        if element[0] in A_prime.final_states:
+            for sub_element in element:
+                print(element)
+                print(sub_element)
+                if sub_element not in A_prime.final_states:
+                    new_block.append(sub_element)
+        if element[0] not in A_prime.final_states:
+            for sub_element in element:
+                if sub_element in A_prime.final_states:
+                    new_block.append(sub_element)
+        if len(new_block) != 0:
+            list_blocks.append(new_block)
+            for sub_element in new_block:
+                element.remove(sub_element)
+
+    print(list_blocks)
     return list_blocks
 
 def build_new_automata(A_prime, list_blocks):
@@ -182,7 +200,7 @@ def minimize(A_prime):
 
 
 def main():
-    list_file = {"wiki.txt"}
+    list_file = {"A.txt"}
     for i in list_file:
         print("Input Automata from file " + i)
         print("")
@@ -216,6 +234,7 @@ def main():
             return 0
 
         new_automata = minimize(A_prime)
+    """
     print("")
     print("==================================================")
     print("")
@@ -235,7 +254,7 @@ def main():
     print("")
     print("")
     print("==================================================")
-
+    """
 
 if __name__ == '__main__':
     main()
