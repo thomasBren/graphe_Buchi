@@ -1,5 +1,3 @@
-from z3 import *
-
 
 class Automata:
     def __init__(self, states, symbols, initial_state, final_states, transitions):
@@ -31,20 +29,6 @@ def create_automata(states, symbols, initial_state, final_states, transitions):
             raise AutomataError("transitions")
 
     return Automata(states, symbols, initial_state, final_states, transitions)
-
-
-def transitions_in_A(A_states, A_symbols):
-    # crée la liste de toutes les A_prime_transitions possible dans le graphe A
-    A_transitions = []
-    for q in range(len(A_states)):
-        A_transitions += [[]]
-        for s in range(len(A_symbols)):
-            A_transitions[q] += [[]]
-            for q2 in range(len(A_states)):
-                A_transitions[q][s] += [
-                    Bool("A_transition " + ": (" + str(q) + "," + str(A_symbols[s]) + "," + str(q2) + ")")]
-                # print("A_transition" + str(q) + str(s) + str(q2))
-    return A_transitions
 
 
 def get_pair(A_prime):
@@ -111,8 +95,6 @@ def create_blocks(A_prime, not_distinguishable):
         new_block = []
         if element[0] in A_prime.final_states:
             for sub_element in element:
-                print(element)
-                print(sub_element)
                 if sub_element not in A_prime.final_states:
                     new_block.append(sub_element)
         if element[0] not in A_prime.final_states:
@@ -124,7 +106,6 @@ def create_blocks(A_prime, not_distinguishable):
             for sub_element in new_block:
                 element.remove(sub_element)
 
-    print(list_blocks)
     return list_blocks
 
 def build_new_automata(A_prime, list_blocks):
@@ -150,7 +131,6 @@ def get_start(A_prime, list_blocks):
                 initial_state_new_automata.append(block)
 
     return initial_state_new_automata
-
 def get_end(A_prime, list_blocks):
 
     final_state_new_automata = []
@@ -161,10 +141,6 @@ def get_end(A_prime, list_blocks):
                 final_state_new_automata.append(block)
 
     return final_state_new_automata
-
-
-
-
 def minimize(A_prime):
     list_pair = get_pair(A_prime)
     #print("pair : ")
@@ -234,11 +210,11 @@ def main():
             return 0
 
         new_automata = minimize(A_prime)
-    """
+
     print("")
     print("==================================================")
     print("")
-    print("output Automata : ")
+    print("output Minimized Automata : ")
     print("A_states : ")
     for element in new_automata.states:
         print(element)
@@ -254,7 +230,7 @@ def main():
     print("")
     print("")
     print("==================================================")
-    """
+
 
 if __name__ == '__main__':
     main()
