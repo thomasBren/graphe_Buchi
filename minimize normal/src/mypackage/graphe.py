@@ -105,32 +105,84 @@ def create_blocks(A_prime, not_distinguishable):
         if not placed:
             list_blocks.append(element)
 
+    # TO DO le cas ou final et pas final
+
     return list_blocks
+
+def build_new_automata(A_prime, list_blocks):
+
+    new_automata_transition = []
+
+    for element in list_blocks:
+        for transition in A_prime.transitions:
+            if transition[0] == element[0]:
+                for element2 in list_blocks:
+                    if transition[2] in element2:
+                        new_automata_transition.append([element, transition[1], element2])
+
+    return new_automata_transition
+
+def get_start(A_prime, list_blocks):
+
+    initial_state_new_automata = []
+
+    for block in list_blocks:
+        for element in block:
+            if element in A_prime.initial_state and block not in initial_state_new_automata:
+                initial_state_new_automata.append(block)
+
+    return initial_state_new_automata
+
+def get_end(A_prime, list_blocks):
+
+    final_state_new_automata = []
+
+    for block in list_blocks:
+        for element in block:
+            if element in A_prime.final_states and block not in final_state_new_automata:
+                final_state_new_automata.append(block)
+
+    return final_state_new_automata
 
 
 
 
 def minimize(A_prime):
     list_pair = get_pair(A_prime)
-    print("pair : ")
-    print(list_pair)
+    #print("pair : ")
+    #print(list_pair)
 
     distinguishable, not_distinguishable = get_distinguishable(A_prime, list_pair)
 
-    print("distinguishable :")
-    print(distinguishable)
-    print("not_distinguishable :")
-    print(not_distinguishable)
+    #print("distinguishable :")
+    #print(distinguishable)
+    #print("not_distinguishable :")
+    #print(not_distinguishable)
 
     list_blocks = create_blocks(A_prime, not_distinguishable)
-    print("list_blocks :")
-    print(list_blocks)
+    #print("list_blocks :")
+    #print(list_blocks)
 
-    return None
+    new_automata_transition = build_new_automata(A_prime, list_blocks)
+    #print("new_automata_transition :")
+    #print(new_automata_transition)
+
+    initial_state_new_automata = get_start(A_prime, list_blocks)
+    #print("initial_state_new_automata :")
+    #print(initial_state_new_automata)
+
+    final_state_new_automata = get_end(A_prime, list_blocks)
+    #print("final_state_new_automata :")
+    #print(final_state_new_automata)
+
+    new_automata = create_automata(list_blocks, A_prime.symbols, initial_state_new_automata, final_state_new_automata,
+                              new_automata_transition)
+
+    return new_automata
 
 
 def main():
-    list_file = {"A.txt"}
+    list_file = {"wiki.txt"}
     for i in list_file:
         print("Input Automata from file " + i)
         print("")
@@ -163,7 +215,26 @@ def main():
             print(ex)
             return 0
 
-        automata = minimize(A_prime)
+        new_automata = minimize(A_prime)
+    print("")
+    print("==================================================")
+    print("")
+    print("output Automata : ")
+    print("A_states : ")
+    for element in new_automata.states:
+        print(element)
+    print("A_symbols : ")
+    print(*new_automata.symbols)
+    print("A_initial_state : ")
+    print(*new_automata.initial_state)
+    print("A_final_states : ")
+    print(*new_automata.final_states)
+    print("A_transitions : ")
+    for element in new_automata.transitions:
+        print(element)
+    print("")
+    print("")
+    print("==================================================")
 
 
 if __name__ == '__main__':
