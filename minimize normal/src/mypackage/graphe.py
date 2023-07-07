@@ -1,3 +1,100 @@
+# Python implementation of Kosaraju's algorithm to print all SCCs
+# https://www.geeksforgeeks.org/strongly-connected-components/
+
+from collections import defaultdict
+
+
+# This class represents a directed graph using adjacency list representation
+class Graph:
+    def __init__(self, vertices):
+        self.V = vertices  # No. of vertices
+        self.graph = defaultdict(list)  # default dictionary to store graph
+
+    # function to add an edge to graph
+    def addEdge(self, u, v):
+        self.graph[u].append(v)
+
+    # A function used by DFS
+    def DFSUtil(self, v, visited, list):
+        # Mark the current node as visited and print it
+        visited[v] = True
+        list.append(v)
+        # Recur for all the vertices adjacent to this vertex
+        for i in self.graph[v]:
+            if not visited[i]:
+                self.DFSUtil(i, visited, list)
+
+    def fillOrder(self, v, visited, stack):
+        # Mark the current node as visited
+        visited[v] = True
+        # Recur for all the vertices adjacent to this vertex
+        for i in self.graph[v]:
+            if not visited[i]:
+                self.fillOrder(i, visited, stack)
+        stack = stack.append(v)
+
+    # Function that returns reverse (or transpose) of this graph
+    def getTranspose(self):
+        g = Graph(self.V)
+
+        # Recur for all the vertices adjacent to this vertex
+        for i in self.graph:
+            for j in self.graph[i]:
+                g.addEdge(j, i)
+        return g
+
+    # The main function that finds and prints all strongly
+    # connected components
+    def find_SCCs(self):
+        SCC = []
+
+        stack = []
+        # Mark all the vertices as not visited (For first DFS)
+        visited = [False] * self.V
+        # Fill vertices in stack according to their finishing
+        # times
+        for i in range(self.V):
+            if not visited[i]:
+                self.fillOrder(i, visited, stack)
+
+        # Create a reversed graph
+        gr = self.getTranspose()
+
+        # Mark all the vertices as not visited (For second DFS)
+        visited = [False] * self.V
+
+        # Now process all vertices in order defined by Stack
+        while stack:
+            i = stack.pop()
+            if not visited[i]:
+                list = []
+                gr.DFSUtil(i, visited, list)
+                SCC.append(list)
+
+        return SCC
+
+
+# The code above is contributed by Neelam Yadav
+# https://www.geeksforgeeks.org/strongly-connected-components/
+
+# The code below is contributed by Thomas Brenart
+
+def get_SCC(A_prime):
+    g = Graph(len(A_prime.states))
+    for transition in A_prime.transitions:
+        for i in range(len(A_prime.states)):
+            for j in range(len(A_prime.states)):
+                if A_prime.states[i] == transition[0] and A_prime.states[j] == transition[2]:
+                    g.addEdge(i, j)
+    SCC = g.find_SCCs()
+    new_SCC = []
+    for sub_graph in SCC:
+        sub = []
+        for element in sub_graph:
+            sub.append(A_prime.states[element])
+        new_SCC.append(sub)
+    return new_SCC
+
 
 class Automata:
     def __init__(self, states, symbols, initial_state, final_states, transitions):
@@ -108,8 +205,8 @@ def create_blocks(A_prime, not_distinguishable):
 
     return list_blocks
 
-def build_new_automata(A_prime, list_blocks):
 
+def build_new_automata(A_prime, list_blocks):
     new_automata_transition = []
 
     for element in list_blocks:
@@ -121,8 +218,8 @@ def build_new_automata(A_prime, list_blocks):
 
     return new_automata_transition
 
-def get_start(A_prime, list_blocks):
 
+def get_start(A_prime, list_blocks):
     initial_state_new_automata = []
 
     for block in list_blocks:
@@ -131,8 +228,9 @@ def get_start(A_prime, list_blocks):
                 initial_state_new_automata.append(block)
 
     return initial_state_new_automata
-def get_end(A_prime, list_blocks):
 
+
+def get_end(A_prime, list_blocks):
     final_state_new_automata = []
 
     for block in list_blocks:
@@ -141,42 +239,44 @@ def get_end(A_prime, list_blocks):
                 final_state_new_automata.append(block)
 
     return final_state_new_automata
+
+
 def minimize(A_prime):
     list_pair = get_pair(A_prime)
-    #print("pair : ")
-    #print(list_pair)
+    # print("pair : ")
+    # print(list_pair)
 
     distinguishable, not_distinguishable = get_distinguishable(A_prime, list_pair)
 
-    #print("distinguishable :")
-    #print(distinguishable)
-    #print("not_distinguishable :")
-    #print(not_distinguishable)
+    # print("distinguishable :")
+    # print(distinguishable)
+    # print("not_distinguishable :")
+    # print(not_distinguishable)
 
     list_blocks = create_blocks(A_prime, not_distinguishable)
-    #print("list_blocks :")
-    #print(list_blocks)
+    # print("list_blocks :")
+    # print(list_blocks)
 
     new_automata_transition = build_new_automata(A_prime, list_blocks)
-    #print("new_automata_transition :")
-    #print(new_automata_transition)
+    # print("new_automata_transition :")
+    # print(new_automata_transition)
 
     initial_state_new_automata = get_start(A_prime, list_blocks)
-    #print("initial_state_new_automata :")
-    #print(initial_state_new_automata)
+    # print("initial_state_new_automata :")
+    # print(initial_state_new_automata)
 
     final_state_new_automata = get_end(A_prime, list_blocks)
-    #print("final_state_new_automata :")
-    #print(final_state_new_automata)
+    # print("final_state_new_automata :")
+    # print(final_state_new_automata)
 
     new_automata = create_automata(list_blocks, A_prime.symbols, initial_state_new_automata, final_state_new_automata,
-                              new_automata_transition)
+                                   new_automata_transition)
 
     return new_automata
 
 
 def main():
-    list_file = {"A.txt"}
+    list_file = {"SCC.txt"}
     for i in list_file:
         print("Input Automata from file " + i)
         print("")
@@ -209,8 +309,11 @@ def main():
             print(ex)
             return 0
 
-        new_automata = minimize(A_prime)
+        SCC = get_SCC(A_prime)
+        print(SCC)
 
+        new_automata = minimize(A_prime)
+    """
     print("")
     print("==================================================")
     print("")
@@ -230,6 +333,7 @@ def main():
     print("")
     print("")
     print("==================================================")
+    """
 
 
 if __name__ == '__main__':
