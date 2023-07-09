@@ -1,5 +1,6 @@
 # Python implementation of Kosaraju's algorithm to print all SCCs
 # https://www.geeksforgeeks.org/strongly-connected-components/
+# https://www.geeksforgeeks.org/python-program-for-topological-sorting/
 
 from collections import defaultdict
 
@@ -70,12 +71,41 @@ class Graph:
                 list = []
                 gr.DFSUtil(i, visited, list)
                 SCC.append(list)
-
         return SCC
 
+    # A recursive function used by topologicalSort
+    def topologicalSortUtil(self, v, visited, stack):
+
+        # Mark the current node as visited.
+        visited[v] = True
+
+        # Recur for all the vertices adjacent to this vertex
+        for i in self.graph[v]:
+            if visited[i] == False:
+                self.topologicalSortUtil(i, visited, stack)
+
+        # Push current vertex to stack which stores result
+        stack.insert(0, v)
+
+    # The function to do Topological Sort. It uses recursive
+    # topologicalSortUtil()
+    def topologicalSort(self):
+        # Mark all the vertices as not visited
+        visited = [False] * self.V
+        stack = []
+
+        # Call the recursive helper function to store Topological
+        # Sort starting from all vertices one by one
+        for i in range(self.V):
+            if visited[i] == False:
+                self.topologicalSortUtil(i, visited, stack)
+
+        # Print contents of stack
+        print(stack)
 
 # The code above is contributed by Neelam Yadav
 # https://www.geeksforgeeks.org/strongly-connected-components/
+# https://www.geeksforgeeks.org/python-program-for-topological-sorting/
 
 # The code below is contributed by Thomas Brenart
 
@@ -87,6 +117,8 @@ def get_SCC(A_prime):
                 if A_prime.states[i] == transition[0] and A_prime.states[j] == transition[2]:
                     g.addEdge(i, j)
     SCC = g.find_SCCs()
+    
+
     new_SCC = []
     for sub_graph in SCC:
         sub = []
