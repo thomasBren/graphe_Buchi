@@ -101,31 +101,13 @@ class Graph:
                 self.topologicalSortUtil(i, visited, stack)
 
         # Print contents of stack
-        print(stack)
+        return stack
 
 # The code above is contributed by Neelam Yadav
 # https://www.geeksforgeeks.org/strongly-connected-components/
 # https://www.geeksforgeeks.org/python-program-for-topological-sorting/
 
 # The code below is contributed by Thomas Brenart
-
-
-def get_SCC(A_prime):
-    g = Graph(len(A_prime.states))
-    for transition in A_prime.transitions:
-        for i in range(len(A_prime.states)):
-            for j in range(len(A_prime.states)):
-                if A_prime.states[i] == transition[0] and A_prime.states[j] == transition[2]:
-                    g.addEdge(i, j)
-    SCC = g.find_SCCs()
-    
-    new_SCC = []
-    for sub_graph in SCC:
-        sub = []
-        for element in sub_graph:
-            sub.append(A_prime.states[element])
-        new_SCC.append(sub)
-    return new_SCC
 
 
 class Automata:
@@ -273,6 +255,24 @@ def get_end(A_prime, list_blocks):
     return final_state_new_automata
 
 
+def get_SCC(A_prime):
+    g = Graph(len(A_prime.states))
+    for transition in A_prime.transitions:
+        for i in range(len(A_prime.states)):
+            for j in range(len(A_prime.states)):
+                if A_prime.states[i] == transition[0] and A_prime.states[j] == transition[2]:
+                    g.addEdge(i, j)
+    SCC = g.find_SCCs()
+
+    new_SCC = []
+    for sub_graph in SCC:
+        sub = []
+        for element in sub_graph:
+            sub.append(A_prime.states[element])
+        new_SCC.append(sub)
+    return new_SCC
+
+
 def get_SCC_transition(SCC, A_prime):
     SCC_transition = []
     for state in SCC:
@@ -327,7 +327,6 @@ def get_SCC_graph(A_prime):
     SCC_final = rewrite_SCC_state(SCC_final)
     SCC_transitions = rewrite_SCC_transitions(SCC_transitions)
 
-
     print("")
     print("")
     print("=======  SCC_Graph  =========")
@@ -345,7 +344,6 @@ def get_SCC_graph(A_prime):
 
     SCC_graph = create_automata(SCC_states, '0', SCC_initial, SCC_final, SCC_transitions)
     return SCC_graph
-
 
 
 def rewrite_SCC_states(SCC_states):
@@ -380,10 +378,23 @@ def rewrite_SCC_transitions(SCC_transitions):
     return new_SCC_transitions
 
 
+def topological_sort(SCC_graph):
+    g = Graph(len(SCC_graph.states))
+    for transition in SCC_graph.transitions:
+        for i in range(len(SCC_graph.states)):
+            for j in range(len(SCC_graph.states)):
+                if SCC_graph.states[i] == transition[0] and SCC_graph.states[j] == transition[2]:
+                    g.addEdge(i, j)
+    sort = g.topologicalSort()
+    return sort
+
+
 def get_max_coloring(A_prime):
-    SCC = get_SCC_graph(A_prime)
-    if SCC == 0:
+    SCC_graph = get_SCC_graph(A_prime)
+    if SCC_graph == 0:
         return 0
+    sort = topological_sort(SCC_graph)
+    print(sort)
     return 1
 
 
