@@ -81,7 +81,7 @@ class Graph:
 
         # Recur for all the vertices adjacent to this vertex
         for i in self.graph[v]:
-            if visited[i] == False:
+            if not visited[i]:
                 self.topologicalSortUtil(i, visited, stack)
 
         # Push current vertex to stack which stores result
@@ -97,7 +97,7 @@ class Graph:
         # Call the recursive helper function to store Topological
         # Sort starting from all vertices one by one
         for i in range(self.V):
-            if visited[i] == False:
+            if not visited[i]:
                 self.topologicalSortUtil(i, visited, stack)
 
         # Print contents of stack
@@ -109,6 +109,7 @@ class Graph:
 
 # The code below is contributed by Thomas Brenart
 
+
 def get_SCC(A_prime):
     g = Graph(len(A_prime.states))
     for transition in A_prime.transitions:
@@ -118,7 +119,6 @@ def get_SCC(A_prime):
                     g.addEdge(i, j)
     SCC = g.find_SCCs()
     
-
     new_SCC = []
     for sub_graph in SCC:
         sub = []
@@ -273,6 +273,120 @@ def get_end(A_prime, list_blocks):
     return final_state_new_automata
 
 
+def get_SCC_transition(SCC, A_prime):
+    SCC_transition = []
+    for state in SCC:
+        for element in state:
+            for transition in A_prime.transitions:
+                if transition[0] == element:
+                    for state2 in SCC:
+                        if transition[2] in state2 and [state, '0', state2] not in SCC_transition:
+                            SCC_transition.append([state, '0', state2])
+
+    return SCC_transition
+
+
+def get_SCC_graph(A_prime):
+    input_error = False
+    SCC_states = get_SCC(A_prime)
+    SCC_transitions = get_SCC_transition(SCC_states, A_prime)
+
+    for state in SCC_states:
+        not_final = True
+        if state[0][0] in A_prime.final_states:
+            not_final = False
+
+        for element in state:                  #TO DO catch les "problème"
+            if element in A_prime.initial_state:
+                SCC_initial = state
+            if element in A_prime.final_states and not_final:
+                input_error = True
+            if element in A_prime.final_states and not not_final:
+                SCC_final = state
+            if element not in A_prime.final_states and not not_final:
+                input_error = True
+
+    if input_error:
+        print("")
+        print("############################################")
+        print("input error : the given automata is not weak")
+        print("############################################")
+        return 0
+    """
+    print("")
+    print("")
+    print("================")
+    print(SCC_states)
+    print(SCC_transitions)
+    print(SCC_initial)
+    print(SCC_final)
+    """
+
+    SCC_states = rewrite_SCC_states(SCC_states)
+    SCC_initial = rewrite_SCC_state(SCC_initial)
+    SCC_final = rewrite_SCC_state(SCC_final)
+    SCC_transitions = rewrite_SCC_transitions(SCC_transitions)
+
+
+    print("")
+    print("")
+    print("=======  SCC_Graph  =========")
+    print("")
+    print("SCC_states :")
+    print(SCC_states)
+    print("SCC_initial :")
+    print(SCC_initial)
+    print("SCC_final :")
+    print(SCC_final)
+    print("SCC_transitions :")
+    print(SCC_transitions)
+    print("")
+    print("")
+
+    SCC_graph = create_automata(SCC_states, '0', SCC_initial, SCC_final, SCC_transitions)
+    return SCC_graph
+
+
+
+def rewrite_SCC_states(SCC_states):
+    new_SCC = []
+    for state in SCC_states:
+        string = ""
+        for element in state:
+            string = string + (str(element))
+        new_SCC.append(string)
+    return new_SCC
+
+
+def rewrite_SCC_state(SCC):
+    new_SCC = []
+    string = ""
+    for element in SCC:
+        string = string + (str(element))
+    new_SCC.append(string)
+    return new_SCC
+
+
+def rewrite_SCC_transitions(SCC_transitions):
+    new_SCC_transitions = []
+    for transition in SCC_transitions:
+        tmp = []
+        for element in transition:
+            if element != 0:
+                tmp.append(rewrite_SCC_state(element))
+            else:
+                tmp.append('0')
+        new_SCC_transitions.append((tmp[0][0], tmp[1][0], tmp[2][0]))
+    return new_SCC_transitions
+
+
+def get_max_coloring(A_prime):
+    SCC = get_SCC_graph(A_prime)
+    if SCC == 0:
+        return 0
+    return 1
+
+
 def minimize(A_prime):
     list_pair = get_pair(A_prime)
     # print("pair : ")
@@ -341,8 +455,9 @@ def main():
             print(ex)
             return 0
 
-        SCC = get_SCC(A_prime)
-        print(SCC)
+        max_coloring = get_max_coloring(A_prime)
+        if max_coloring == 0:
+            return 0
 
         new_automata = minimize(A_prime)
     """
