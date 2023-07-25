@@ -32,7 +32,7 @@ class Graph:
         for i in self.graph[v]:
             if not visited[i]:
                 self.fillOrder(i, visited, stack)
-        stack = stack.append(v)
+        stack.append(v)
 
     # Function that returns reverse (or transpose) of this graph
     def getTranspose(self):
@@ -200,7 +200,7 @@ def create_blocks(A_prime, not_distinguishable):
         if not placed:
             list_blocks.append(element)
 
-    # le cas où état final et pas final dans le même block
+    # le cas où etat final et pas final dans le meme block
 
     for element in list_blocks:
         new_block = []
@@ -289,22 +289,32 @@ def get_SCC_transition(SCC, A_prime):
 def get_SCC_graph(A_prime):
     input_error = False
     SCC_states = get_SCC(A_prime)
+    SCC_initial = []
+    SCC_final = []
     SCC_transitions = get_SCC_transition(SCC_states, A_prime)
 
     for state in SCC_states:
         not_final = True
+        print("state")
+        print("state")
+        print(state)
+        print(not_final)
+
         if state[0][0] in A_prime.final_states:
             not_final = False
 
-        for element in state:                  #TO DO catch les "problème"
+        for element in state:
             if element in A_prime.initial_state:
                 SCC_initial = state
+            if element in A_prime.final_states and not not_final and state not in SCC_final:
+                SCC_final.append(state)
             if element in A_prime.final_states and not_final:
                 input_error = True
-            if element in A_prime.final_states and not not_final:
-                SCC_final = state
             if element not in A_prime.final_states and not not_final:
                 input_error = True
+        print(not_final)
+        print("state")
+        print("state")
 
     if input_error:
         print("")
@@ -324,7 +334,7 @@ def get_SCC_graph(A_prime):
 
     SCC_states = rewrite_SCC_states(SCC_states)
     SCC_initial = rewrite_SCC_state(SCC_initial)
-    SCC_final = rewrite_SCC_state(SCC_final)
+    SCC_final = rewrite_SCC_states(SCC_final)
     SCC_transitions = rewrite_SCC_transitions(SCC_transitions)
 
     print("")
@@ -389,12 +399,105 @@ def topological_sort(SCC_graph):
     return sort
 
 
+def get_successor(v, SCC_graph):
+    successor = []
+    for transit in SCC_graph.transitions:
+        if transit[0] == v and transit[2] != v and transit[2] not in successor:
+            successor.append(transit[2])
+    return successor
+
+
+def isTransient(v):
+    v_string = str(v)
+    list_v = [*v_string]
+    if len(list_v) == 1:
+        return True
+    else:
+        return False
+
+
+def get_min_successor(v, SCC_graph, color_list, inverted_sort):
+    list_color_successor = []
+    list_successor = get_successor(v, SCC_graph)
+    print("")
+    print("### ici ####")
+    print(v)
+    print(list_successor)
+    for successor in list_successor:
+        count = 0
+        while successor != SCC_graph.states[count]:
+            count += 1
+        print(count)
+        print(color_list[count])
+        if color_list[count] != -1:
+            list_color_successor.append(color_list[count][1])
+    print(color_list)
+    print("min")
+    print(list_color_successor)
+    print(min(list_color_successor))
+
+    return min(list_color_successor)
+
+
 def get_max_coloring(A_prime):
+
+    inverted_sort = []
     SCC_graph = get_SCC_graph(A_prime)
+    k = len(SCC_graph.states)
+    if (k % 2) != 0:
+        k += 1
+    color_list = [-1] * len(SCC_graph.states)
     if SCC_graph == 0:
         return 0
-    sort = topological_sort(SCC_graph)
-    print(sort)
+    sort = topological_sort(SCC_graph) #ici
+    for i in sort:
+        inverted_sort.insert(0, i)
+    print(inverted_sort)
+    for i in inverted_sort:
+        print("==== new i =====")
+        print("k = " + str(k))
+        print(color_list)
+        print(i)
+        print(SCC_graph.states[i])
+        print(SCC_graph.states[i] in SCC_graph.final_states)
+        print("")
+        if not get_successor(SCC_graph.states[i], SCC_graph):
+            print("vide")
+            print(SCC_graph.states[i])
+            if SCC_graph.states[i] in SCC_graph.final_states:
+                color_list[i] = [SCC_graph.states[i], k]
+            else:
+                color_list[i] = [SCC_graph.states[i], k-1]
+        else:
+            #print(i)
+            #print("non vide")
+            print(inverted_sort)
+            l = get_min_successor(SCC_graph.states[i], SCC_graph, color_list, inverted_sort)
+            if isTransient(SCC_graph.states[i]):
+                color_list[i] = [SCC_graph.states[i], l]
+                print("case 1")
+            else:
+                if (l % 2) == 0 and SCC_graph.states[i] in SCC_graph.final_states:
+                    color_list[i] = [SCC_graph.states[i], l]
+                    print("case 2")
+                else:
+                    print(SCC_graph.final_states)
+                    if (l % 2) != 0 and SCC_graph.states[i] not in SCC_graph.final_states:
+                        color_list[i] = [SCC_graph.states[i], l]
+                        print("case 3")
+                    else:
+                        color_list[i] = [SCC_graph.states[i], l-1]
+                        print("case 4")
+        print(color_list)
+
+
+
+    #print(k)
+    #print(sort)
+    #print(inverted_sort)
+    #print(color_list)
+
+
     return 1
 
 
