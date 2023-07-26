@@ -295,10 +295,6 @@ def get_SCC_graph(A_prime):
 
     for state in SCC_states:
         not_final = True
-        print("state")
-        print("state")
-        print(state)
-        print(not_final)
 
         if state[0][0] in A_prime.final_states:
             not_final = False
@@ -312,9 +308,6 @@ def get_SCC_graph(A_prime):
                 input_error = True
             if element not in A_prime.final_states and not not_final:
                 input_error = True
-        print(not_final)
-        print("state")
-        print("state")
 
     if input_error:
         print("")
@@ -419,30 +412,20 @@ def isTransient(v, SCC_graph):
         return False
 
 
-def get_min_successor(v, SCC_graph, color_list, inverted_sort):
+def get_min_successor(v, SCC_graph, color_list):
     list_color_successor = []
     list_successor = get_successor(v, SCC_graph)
-    #print("")
-    #print("### ici ####")
-    #print(v)
-    #print(list_successor)
     for successor in list_successor:
         count = 0
         while successor != SCC_graph.states[count]:
             count += 1
-        #print(count)
-        #print(color_list[count])
         if color_list[count] != -1:
             list_color_successor.append(color_list[count][1])
-    #print(color_list)
-    #print("min")
-    #print(list_color_successor)
-    #print(min(list_color_successor))
 
     return min(list_color_successor)
 
 
-def get_max_coloring(A_prime):
+def get_final_states_coloring(A_prime):
 
     inverted_sort = []
     SCC_graph = get_SCC_graph(A_prime)
@@ -452,56 +435,41 @@ def get_max_coloring(A_prime):
     color_list = [-1] * len(SCC_graph.states)
     if SCC_graph == 0:
         return 0
-    sort = topological_sort(SCC_graph) #ici
+    sort = topological_sort(SCC_graph)
     for i in sort:
         inverted_sort.insert(0, i)
+    print("inverted_sort :")
     print(inverted_sort)
     for i in inverted_sort:
-        print("==== new i =====")
-        #print("k = " + str(k))
-        print(color_list)
-        #print(i)
-        print(SCC_graph.states[i])
-        #print(SCC_graph.states[i] in SCC_graph.final_states)
-        print("")
         if not get_successor(SCC_graph.states[i], SCC_graph):
-            #print("vide")
-            #print(SCC_graph.states[i])
             if SCC_graph.states[i] in SCC_graph.final_states:
                 color_list[i] = [SCC_graph.states[i], k]
             else:
                 color_list[i] = [SCC_graph.states[i], k-1]
         else:
-            #print(i)
-            #print("non vide")
-            #print(inverted_sort)
-            l = get_min_successor(SCC_graph.states[i], SCC_graph, color_list, inverted_sort)
+            h = get_min_successor(SCC_graph.states[i], SCC_graph, color_list)
             if isTransient(SCC_graph.states[i], SCC_graph):
-                color_list[i] = [SCC_graph.states[i], l]
-                print("case 1")
+                color_list[i] = [SCC_graph.states[i], h]
             else:
-                if (l % 2) == 0 and SCC_graph.states[i] in SCC_graph.final_states:
-                    color_list[i] = [SCC_graph.states[i], l]
-                    print("case 2")
+                if (h % 2) == 0 and SCC_graph.states[i] in SCC_graph.final_states:
+                    color_list[i] = [SCC_graph.states[i], h]
                 else:
-                    if (l % 2) != 0 and SCC_graph.states[i] not in SCC_graph.final_states:
-                        color_list[i] = [SCC_graph.states[i], l]
-                        print("case 3")
+                    if (h % 2) != 0 and SCC_graph.states[i] not in SCC_graph.final_states:
+                        color_list[i] = [SCC_graph.states[i], h]
                     else:
-                        color_list[i] = [SCC_graph.states[i], l-1]
-                        print("case 4")
-        print(color_list)
-        print("")
+                        color_list[i] = [SCC_graph.states[i], h-1]
 
+    print("color_list :")
+    print(color_list)
+    print("")
 
+    color_final_states = []
 
-    #print(k)
-    #print(sort)
-    #print(inverted_sort)
-    #print(color_list)
+    for color in color_list:
+        if color[1] % 2 == 0:
+            color_final_states.append(color[0])
 
-
-    return 1
+    return color_final_states
 
 
 def minimize(A_prime):
@@ -572,32 +540,46 @@ def main():
             print(ex)
             return 0
 
-        max_coloring = get_max_coloring(A_prime)
-        if max_coloring == 0:
-            return 0
+        final_states_coloring = get_final_states_coloring(A_prime)
 
-        new_automata = minimize(A_prime)
-    """
-    print("")
-    print("==================================================")
-    print("")
-    print("output Minimized Automata : ")
-    print("A_states : ")
-    for element in new_automata.states:
-        print(element)
-    print("A_symbols : ")
-    print(*new_automata.symbols)
-    print("A_initial_state : ")
-    print(*new_automata.initial_state)
-    print("A_final_states : ")
-    print(*new_automata.final_states)
-    print("A_transitions : ")
-    for element in new_automata.transitions:
-        print(element)
-    print("")
-    print("")
-    print("==================================================")
-    """
+        coloring_automata = create_automata(A_prime.states, A_prime_symbols, A_prime_initial_state,
+                                            final_states_coloring, A_prime_transitions)
+
+        print("")
+        print("==================================================")
+        print("")
+        print("coloring Automata : ")
+        print("A_states : ")
+        print(*coloring_automata.states)
+        print("A_symbols : ")
+        print(*coloring_automata.symbols)
+        print("A_initial_state : ")
+        print(*coloring_automata.initial_state)
+        print("A_final_states : ")
+        print(*coloring_automata.final_states)
+        print("A_transitions : ")
+        print(*coloring_automata.transitions)
+        print("")
+        print("")
+
+        new_automata = minimize(coloring_automata)
+
+        print("")
+        print("==================================================")
+        print("")
+        print("output Minimized Automata : ")
+        print("A_states : ")
+        print(*new_automata.states)
+        print("A_symbols : ")
+        print(*new_automata.symbols)
+        print("A_initial_state : ")
+        print(*new_automata.initial_state)
+        print("A_final_states : ")
+        print(*new_automata.final_states)
+        print("A_transitions : ")
+        print(*new_automata.transitions)
+        print("")
+        print("")
 
 
 if __name__ == '__main__':
