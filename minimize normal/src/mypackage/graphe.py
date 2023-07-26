@@ -200,8 +200,6 @@ def create_blocks(A_prime, not_distinguishable):
         if not placed:
             list_blocks.append(element)
 
-    # le cas où etat final et pas final dans le meme block
-
     for element in list_blocks:
         new_block = []
         if element[0] in A_prime.final_states:
@@ -216,7 +214,6 @@ def create_blocks(A_prime, not_distinguishable):
             list_blocks.append(new_block)
             for sub_element in new_block:
                 element.remove(sub_element)
-
     return list_blocks
 
 
@@ -315,15 +312,6 @@ def get_SCC_graph(A_prime):
         print("input error : the given automata is not weak")
         print("############################################")
         return 0
-    """
-    print("")
-    print("")
-    print("================")
-    print(SCC_states)
-    print(SCC_transitions)
-    print(SCC_initial)
-    print(SCC_final)
-    """
 
     SCC_states = rewrite_SCC_states(SCC_states)
     SCC_initial = rewrite_SCC_state(SCC_initial)
@@ -474,31 +462,16 @@ def get_final_states_coloring(A_prime):
 
 def minimize(A_prime):
     list_pair = get_pair(A_prime)
-    # print("pair : ")
-    # print(list_pair)
 
     distinguishable, not_distinguishable = get_distinguishable(A_prime, list_pair)
 
-    # print("distinguishable :")
-    # print(distinguishable)
-    # print("not_distinguishable :")
-    # print(not_distinguishable)
-
     list_blocks = create_blocks(A_prime, not_distinguishable)
-    # print("list_blocks :")
-    # print(list_blocks)
 
     new_automata_transition = build_new_automata(A_prime, list_blocks)
-    # print("new_automata_transition :")
-    # print(new_automata_transition)
 
     initial_state_new_automata = get_start(A_prime, list_blocks)
-    # print("initial_state_new_automata :")
-    # print(initial_state_new_automata)
 
     final_state_new_automata = get_end(A_prime, list_blocks)
-    # print("final_state_new_automata :")
-    # print(final_state_new_automata)
 
     new_automata = create_automata(list_blocks, A_prime.symbols, initial_state_new_automata, final_state_new_automata,
                                    new_automata_transition)
@@ -569,6 +542,12 @@ def main():
         print("")
         print("output Minimized Automata : ")
         print("A_states : ")
+        count = 0
+        for state in new_automata.states:
+            if len(state) > 1:
+                state = rewrite_SCC_state(state)
+                new_automata.states[count] = state[0]
+            count += 1
         print(*new_automata.states)
         print("A_symbols : ")
         print(*new_automata.symbols)
@@ -577,6 +556,14 @@ def main():
         print("A_final_states : ")
         print(*new_automata.final_states)
         print("A_transitions : ")
+        count = 0
+        for transition in new_automata.transitions:
+            if len(transition[0]) > 1:
+                transition[0] = rewrite_SCC_state(transition[0])[0]
+            if len(transition[2]) > 1:
+                transition[2] = rewrite_SCC_state(transition[2])[0]
+            new_automata.transitions[count] = transition
+            count += 1
         print(*new_automata.transitions)
         print("")
         print("")
