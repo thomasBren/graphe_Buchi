@@ -407,10 +407,13 @@ def get_successor(v, SCC_graph):
     return successor
 
 
-def isTransient(v):
+def isTransient(v, SCC_graph):
     v_string = str(v)
     list_v = [*v_string]
     if len(list_v) == 1:
+        for transition in SCC_graph.transitions:
+            if transition[0] == v and transition[2] == v:
+                return False
         return True
     else:
         return False
@@ -419,22 +422,22 @@ def isTransient(v):
 def get_min_successor(v, SCC_graph, color_list, inverted_sort):
     list_color_successor = []
     list_successor = get_successor(v, SCC_graph)
-    print("")
-    print("### ici ####")
-    print(v)
-    print(list_successor)
+    #print("")
+    #print("### ici ####")
+    #print(v)
+    #print(list_successor)
     for successor in list_successor:
         count = 0
         while successor != SCC_graph.states[count]:
             count += 1
-        print(count)
-        print(color_list[count])
+        #print(count)
+        #print(color_list[count])
         if color_list[count] != -1:
             list_color_successor.append(color_list[count][1])
-    print(color_list)
-    print("min")
-    print(list_color_successor)
-    print(min(list_color_successor))
+    #print(color_list)
+    #print("min")
+    #print(list_color_successor)
+    #print(min(list_color_successor))
 
     return min(list_color_successor)
 
@@ -455,15 +458,15 @@ def get_max_coloring(A_prime):
     print(inverted_sort)
     for i in inverted_sort:
         print("==== new i =====")
-        print("k = " + str(k))
+        #print("k = " + str(k))
         print(color_list)
-        print(i)
+        #print(i)
         print(SCC_graph.states[i])
-        print(SCC_graph.states[i] in SCC_graph.final_states)
+        #print(SCC_graph.states[i] in SCC_graph.final_states)
         print("")
         if not get_successor(SCC_graph.states[i], SCC_graph):
-            print("vide")
-            print(SCC_graph.states[i])
+            #print("vide")
+            #print(SCC_graph.states[i])
             if SCC_graph.states[i] in SCC_graph.final_states:
                 color_list[i] = [SCC_graph.states[i], k]
             else:
@@ -471,9 +474,9 @@ def get_max_coloring(A_prime):
         else:
             #print(i)
             #print("non vide")
-            print(inverted_sort)
+            #print(inverted_sort)
             l = get_min_successor(SCC_graph.states[i], SCC_graph, color_list, inverted_sort)
-            if isTransient(SCC_graph.states[i]):
+            if isTransient(SCC_graph.states[i], SCC_graph):
                 color_list[i] = [SCC_graph.states[i], l]
                 print("case 1")
             else:
@@ -481,7 +484,6 @@ def get_max_coloring(A_prime):
                     color_list[i] = [SCC_graph.states[i], l]
                     print("case 2")
                 else:
-                    print(SCC_graph.final_states)
                     if (l % 2) != 0 and SCC_graph.states[i] not in SCC_graph.final_states:
                         color_list[i] = [SCC_graph.states[i], l]
                         print("case 3")
@@ -489,6 +491,7 @@ def get_max_coloring(A_prime):
                         color_list[i] = [SCC_graph.states[i], l-1]
                         print("case 4")
         print(color_list)
+        print("")
 
 
 
