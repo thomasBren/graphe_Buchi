@@ -9,7 +9,7 @@ B 1 C
 C 1 E
 C 0 D
 D 0 G
-D 1 D
+D 1 G
 E 1 B
 E 0 C
 F 1 G

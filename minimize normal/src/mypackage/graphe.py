@@ -564,6 +564,7 @@ def main():
                 transition[2] = rewrite_SCC_state(transition[2])[0]
             new_automata.transitions[count] = transition
             count += 1
+
         print(*new_automata.transitions)
         print("")
         print("")
