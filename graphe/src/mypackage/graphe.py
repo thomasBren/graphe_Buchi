@@ -1,4 +1,5 @@
 from z3 import *
+import time
 
 
 class Automata:
@@ -312,11 +313,11 @@ def minimize(A_prime):
 
 
 def main():
-    list_file = {"LTL4.txt", "LTL3.txt", "LTL2.txt", "LTL1.txt", "file_graph.txt"}
+    list_file = {"SCC.txt"}
     for i in list_file:
         print("Input Automata from file " + i)
         print("")
-        input = open("../input_graphe/"+i, "r")
+        input = open("../input_graphe/" + i, "r")
         A_prime_states = list(input.readline().split())
         print("A_prime_states : ")
         print(*A_prime_states)
@@ -340,7 +341,7 @@ def main():
 
         try:
             A_prime = create_automata(A_prime_states, A_prime_symbols, A_prime_initial_state, A_prime_final_states,
-                                  A_prime_transitions)
+                                      A_prime_transitions)
         except AutomataError as ex:
             print(ex)
             return 0
@@ -379,6 +380,7 @@ def main():
         print("==================================================")
 
 
-
 if __name__ == '__main__':
+    start = time.time()
     main()
+    print("execution time : " + str(time.time() - start) + " sec")

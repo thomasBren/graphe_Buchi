@@ -3,7 +3,7 @@
 # https://www.geeksforgeeks.org/python-program-for-topological-sorting/
 
 from collections import defaultdict
-
+import time
 
 # This class represents a directed graph using adjacency list representation
 class Graph:
@@ -571,4 +571,6 @@ def main():
 
 
 if __name__ == '__main__':
+    start = time.time()
     main()
+    print("execution time : " + str(time.time() - start) + " sec")
