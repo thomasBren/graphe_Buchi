@@ -390,15 +390,11 @@ def get_successor(v, SCC_graph):
 
 
 def isTransient(v, SCC_graph):
-    v_string = str(v)
-    list_v = [*v_string]
-    if len(list_v) == 1:
-        for transition in SCC_graph.transitions:
-            if transition[0] == v and transition[2] == v:
-                return False
-        return True
-    else:
-        return False
+    for transition in SCC_graph.transitions:
+        if transition[2] == v and transition[0] != v:
+
+            return False
+    return True
 
 
 def get_min_successor(v, SCC_graph, color_list):
