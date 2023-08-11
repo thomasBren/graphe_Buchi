@@ -5,6 +5,7 @@
 from collections import defaultdict
 import time
 
+
 # This class represents a directed graph using adjacency list representation
 class Graph:
     def __init__(self, vertices):
@@ -103,6 +104,7 @@ class Graph:
         # Print contents of stack
         return stack
 
+
 # The code above is contributed by Neelam Yadav
 # https://www.geeksforgeeks.org/strongly-connected-components/
 # https://www.geeksforgeeks.org/python-program-for-topological-sorting/
@@ -167,8 +169,10 @@ def get_distinguishable(A_prime, list_pair):
         for element in list_pair:
             for transition1 in A_prime.transitions:
                 for transition2 in A_prime.transitions:
-                    if transition1[0] == element[0] and transition2[0] == element[1] and transition1[1] == transition2[1]:
-                        if ([transition1[2], transition2[2]] in distinguishable or [transition2[2], transition1[2]] in distinguishable) and [transition1[0], transition2[0]] not in distinguishable:
+                    if transition1[0] == element[0] and transition2[0] == element[1] and transition1[1] == transition2[
+                        1]:
+                        if ([transition1[2], transition2[2]] in distinguishable or [transition2[2], transition1[
+                            2]] in distinguishable) and [transition1[0], transition2[0]] not in distinguishable:
                             distinguishable.append(element)
                             add = True
 
@@ -389,10 +393,46 @@ def get_successor(v, SCC_graph):
     return successor
 
 
-def isTransient(v, SCC_graph):
+def isTransient(v, SCC_graph, A_prime):
+    touched_vertex = []
+    print("ici : ")
+    print(v)
+    new_v = v
+    if len(v) <= 1:
+        for transition in A_prime.transitions:
+            if transition[0] == v and transition[2] == v:
+                print("boucle fin")
+                return False
+            if transition[0] == v:
+                touched_vertex.append(transition[2])
+        add = True
+        while add:
+            add = False
+            for transition in A_prime.transitions:
+                if transition[0] in touched_vertex and transition[2] not in touched_vertex:
+                    touched_vertex.append(transition[2])
+                    add = True
+                    if transition[2] == v:
+                        print("trouvé fin")
+                        return False
+
+        print(touched_vertex)
+        print("pas trouvé fin")
+
+
+
+        print("fin")
+        print(touched_vertex)
+
+        add = True
+        while add:
+            add = False
+            for transition in A_prime.transitions:
+                if transition[0] == new_v:
+                    print(transition)
+
     for transition in SCC_graph.transitions:
         if transition[2] == v and transition[0] != v:
-
             return False
     return True
 
@@ -411,7 +451,6 @@ def get_min_successor(v, SCC_graph, color_list):
 
 
 def get_final_states_coloring(A_prime):
-
     inverted_sort = []
     SCC_graph = get_SCC_graph(A_prime)
     k = len(SCC_graph.states)
@@ -430,10 +469,10 @@ def get_final_states_coloring(A_prime):
             if SCC_graph.states[i] in SCC_graph.final_states:
                 color_list[i] = [SCC_graph.states[i], k]
             else:
-                color_list[i] = [SCC_graph.states[i], k-1]
+                color_list[i] = [SCC_graph.states[i], k - 1]
         else:
             h = get_min_successor(SCC_graph.states[i], SCC_graph, color_list)
-            if isTransient(SCC_graph.states[i], SCC_graph):
+            if isTransient(SCC_graph.states[i], SCC_graph, A_prime):
                 color_list[i] = [SCC_graph.states[i], h]
             else:
                 if (h % 2) == 0 and SCC_graph.states[i] in SCC_graph.final_states:
@@ -442,7 +481,7 @@ def get_final_states_coloring(A_prime):
                     if (h % 2) != 0 and SCC_graph.states[i] not in SCC_graph.final_states:
                         color_list[i] = [SCC_graph.states[i], h]
                     else:
-                        color_list[i] = [SCC_graph.states[i], h-1]
+                        color_list[i] = [SCC_graph.states[i], h - 1]
 
     print("color_list :")
     print(color_list)
