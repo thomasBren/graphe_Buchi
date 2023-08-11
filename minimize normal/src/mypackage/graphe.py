@@ -278,7 +278,8 @@ def get_SCC_transition(SCC, A_prime):
                 if transition[0] == element:
                     for state2 in SCC:
                         if transition[2] in state2 and [state, '0', state2] not in SCC_transition:
-                            SCC_transition.append([state, '0', state2])
+                            if state != state2:
+                                SCC_transition.append([state, '0', state2])
 
     return SCC_transition
 
