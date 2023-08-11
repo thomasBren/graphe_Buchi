@@ -393,15 +393,11 @@ def get_successor(v, SCC_graph):
     return successor
 
 
-def isTransient(v, SCC_graph, A_prime):
+def isTransient(v, A_prime):
     touched_vertex = []
-    print("ici : ")
-    print(v)
-    new_v = v
     if len(v) <= 1:
         for transition in A_prime.transitions:
             if transition[0] == v and transition[2] == v:
-                print("boucle fin")
                 return False
             if transition[0] == v:
                 touched_vertex.append(transition[2])
@@ -413,28 +409,8 @@ def isTransient(v, SCC_graph, A_prime):
                     touched_vertex.append(transition[2])
                     add = True
                     if transition[2] == v:
-                        print("trouvé fin")
                         return False
-
-        print(touched_vertex)
-        print("pas trouvé fin")
-
-
-
-        print("fin")
-        print(touched_vertex)
-
-        add = True
-        while add:
-            add = False
-            for transition in A_prime.transitions:
-                if transition[0] == new_v:
-                    print(transition)
-
-    for transition in SCC_graph.transitions:
-        if transition[2] == v and transition[0] != v:
-            return False
-    return True
+        return
 
 
 def get_min_successor(v, SCC_graph, color_list):
@@ -472,7 +448,7 @@ def get_final_states_coloring(A_prime):
                 color_list[i] = [SCC_graph.states[i], k - 1]
         else:
             h = get_min_successor(SCC_graph.states[i], SCC_graph, color_list)
-            if isTransient(SCC_graph.states[i], SCC_graph, A_prime):
+            if isTransient(SCC_graph.states[i], A_prime):
                 color_list[i] = [SCC_graph.states[i], h]
             else:
                 if (h % 2) == 0 and SCC_graph.states[i] in SCC_graph.final_states:
