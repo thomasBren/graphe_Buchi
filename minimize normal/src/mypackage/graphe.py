@@ -338,6 +338,7 @@ def get_SCC_graph(A_prime):
     print("")
     print("")
 
+
     SCC_graph = create_automata(SCC_states, '0', SCC_initial, SCC_final, SCC_transitions)
     return SCC_graph
 
@@ -346,7 +347,11 @@ def rewrite_SCC_states(SCC_states):
     new_SCC = []
     for state in SCC_states:
         string = ""
+        i = 0
         for element in state:
+            if i != 0:
+                string = string + ("_")
+            i = i+1
             string = string + (str(element))
         new_SCC.append(string)
     return new_SCC
@@ -355,7 +360,11 @@ def rewrite_SCC_states(SCC_states):
 def rewrite_SCC_state(SCC):
     new_SCC = []
     string = ""
+    i = 0
     for element in SCC:
+        if i != 0:
+            string = string + ("_")
+        i = i + 1
         string = string + (str(element))
     new_SCC.append(string)
     return new_SCC
@@ -395,22 +404,35 @@ def get_successor(v, SCC_graph):
 
 def isTransient(v, A_prime):
     touched_vertex = []
-    if len(v) <= 1:
+    old_vertex = []
+    new_vertex = []
+
+    list_ = []
+    str_v = str(v)
+    chars = list(str_v)
+    for j in chars:
+        list_.append(j)
+
+    if "_" not in list_:
         for transition in A_prime.transitions:
             if transition[0] == v and transition[2] == v:
                 return False
             if transition[0] == v:
                 touched_vertex.append(transition[2])
+                old_vertex.append(transition[2])
         add = True
         while add:
             add = False
             for transition in A_prime.transitions:
-                if transition[0] in touched_vertex and transition[2] not in touched_vertex:
-                    touched_vertex.append(transition[2])
+                if transition[0] in touched_vertex and transition[2] not in old_vertex:
+                    new_vertex.append(transition[2])
+                    old_vertex.append(transition[2])
                     add = True
                     if transition[2] == v:
                         return False
-        return
+            touched_vertex = new_vertex
+            new_vertex = []
+        return True
 
 
 def get_min_successor(v, SCC_graph, color_list):
@@ -485,6 +507,11 @@ def minimize(A_prime):
 
     final_state_new_automata = get_end(A_prime, list_blocks)
 
+    list_blocks = rewrite_SCC_states(list_blocks)
+    initial_state_new_automata = rewrite_SCC_state(initial_state_new_automata)
+    final_state_new_automata = rewrite_SCC_states(final_state_new_automata)
+    new_automata_transition = rewrite_SCC_transitions(new_automata_transition)
+
     new_automata = create_automata(list_blocks, A_prime.symbols, initial_state_new_automata, final_state_new_automata,
                                    new_automata_transition)
 
@@ -527,8 +554,16 @@ def main():
 
         final_states_coloring = get_final_states_coloring(A_prime)
 
+        list_final = []
+        for element in final_states_coloring:
+            fsc = str(element)
+            chars = list(fsc)
+            for j in chars:
+                if j != "_":
+                    list_final.append(j)
+
         coloring_automata = create_automata(A_prime.states, A_prime_symbols, A_prime_initial_state,
-                                            final_states_coloring, A_prime_transitions)
+                                            list_final, A_prime_transitions)
 
         print("")
         print("==================================================")
@@ -554,12 +589,6 @@ def main():
         print("")
         print("output Minimized Automata : ")
         print("A_states : ")
-        count = 0
-        for state in new_automata.states:
-            if len(state) > 1:
-                state = rewrite_SCC_state(state)
-                new_automata.states[count] = state[0]
-            count += 1
         print(*new_automata.states)
         print("A_symbols : ")
         print(*new_automata.symbols)
@@ -568,15 +597,6 @@ def main():
         print("A_final_states : ")
         print(*new_automata.final_states)
         print("A_transitions : ")
-        count = 0
-        for transition in new_automata.transitions:
-            if len(transition[0]) > 1:
-                transition[0] = rewrite_SCC_state(transition[0])[0]
-            if len(transition[2]) > 1:
-                transition[2] = rewrite_SCC_state(transition[2])[0]
-            new_automata.transitions[count] = transition
-            count += 1
-
         print(*new_automata.transitions)
         print("")
         print("")
