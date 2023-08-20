@@ -519,7 +519,7 @@ def minimize(A_prime):
 
 
 def main():
-    list_file = {"SCC.txt"}
+    list_file = {"weakgraph1.txt"}
     for i in list_file:
         print("Input Automata from file " + i)
         print("")
