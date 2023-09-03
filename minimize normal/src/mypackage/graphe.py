@@ -338,7 +338,6 @@ def get_SCC_graph(A_prime):
     print("")
     print("")
 
-
     SCC_graph = create_automata(SCC_states, '0', SCC_initial, SCC_final, SCC_transitions)
     return SCC_graph
 
@@ -508,7 +507,7 @@ def minimize(A_prime):
     final_state_new_automata = get_end(A_prime, list_blocks)
 
     list_blocks = rewrite_SCC_states(list_blocks)
-    initial_state_new_automata = rewrite_SCC_state(initial_state_new_automata)
+    initial_state_new_automata = rewrite_SCC_state(initial_state_new_automata[0])
     final_state_new_automata = rewrite_SCC_states(final_state_new_automata)
     new_automata_transition = rewrite_SCC_transitions(new_automata_transition)
 
